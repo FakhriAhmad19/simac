@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ config('app.name', 'SIMAC') }}</title>
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -112,7 +112,7 @@
             .bottom-nav {
                 display: flex; position: fixed; inset: auto 0 0 0; z-index: 1030;
                 background: #fff; border-top: 1px solid #e5e7eb; box-shadow: 0 -2px 10px rgba(0,0,0,.07);
-                padding: .2rem .2rem calc(.2rem + env(safe-area-inset-bottom, 0px));
+                padding: .2rem .2rem max(.9rem, calc(.2rem + env(safe-area-inset-bottom, 0px)));
             }
             .bottom-nav a, .bottom-nav button {
                 flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;

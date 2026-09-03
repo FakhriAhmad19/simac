@@ -19,8 +19,8 @@
         </ul>
     </x-page-guide>
 
-    <div class="card">
-        <div class="card-header bg-white">
+    <div class="card mb-3">
+        <div class="card-body">
             <form method="GET" class="row g-2 align-items-center">
                 <div class="col-12 col-md">
                     <div class="input-group">
@@ -37,21 +37,25 @@
                 @endif
             </form>
         </div>
+    </div>
+
+    {{-- Desktop: data table --}}
+    <div class="card d-none d-md-block">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-mobile-card">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
-                    <tr><th>Nama</th><th>HP/WA</th><th class="d-none d-md-table-cell">Alamat</th>
+                    <tr><th>Nama</th><th>HP/WA</th><th>Alamat</th>
                         <th class="text-center">Unit AC</th><th class="text-center">Booking</th><th></th></tr>
                 </thead>
                 <tbody>
                     @forelse ($customers as $customer)
                         <tr>
-                            <td class="fw-semibold" data-label="Nama">{{ $customer->name }}</td>
-                            <td data-label="HP/WA">{{ $customer->phone }}</td>
-                            <td class="text-muted d-none d-md-table-cell" data-label="Alamat">{{ Str::limit($customer->address, 28) ?: '—' }}</td>
-                            <td class="text-center" data-label="Unit AC">{{ $customer->ac_units_count }}</td>
-                            <td class="text-center" data-label="Booking">{{ $customer->bookings_count }}</td>
-                            <td class="text-end cell-actions">
+                            <td class="fw-semibold">{{ $customer->name }}</td>
+                            <td>{{ $customer->phone }}</td>
+                            <td class="text-muted">{{ Str::limit($customer->address, 28) ?: '—' }}</td>
+                            <td class="text-center">{{ $customer->ac_units_count }}</td>
+                            <td class="text-center">{{ $customer->bookings_count }}</td>
+                            <td class="text-end">
                                 <a href="{{ route('customers.show', $customer) }}"
                                    class="btn btn-sm btn-outline-primary">Detail</a>
                             </td>
@@ -62,6 +66,40 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white">{{ $customers->links() }}</div>
     </div>
+
+    {{-- Mobile: compact cards --}}
+    <div class="d-md-none">
+        @forelse ($customers as $customer)
+            <div class="card mb-2">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1" style="min-width:0">
+                            <div class="fw-semibold text-truncate">{{ $customer->name }}</div>
+                            <div class="text-muted small"><i class="bi bi-telephone me-1"></i>{{ $customer->phone }}</div>
+                            @if ($customer->address)
+                                <div class="text-muted small text-truncate"><i class="bi bi-geo-alt me-1"></i>{{ $customer->address }}</div>
+                            @endif
+                        </div>
+                        <a href="{{ route('customers.show', $customer) }}"
+                           class="btn btn-sm btn-outline-primary flex-shrink-0">Detail</a>
+                    </div>
+                    <div class="d-flex gap-2 mt-2 pt-2 border-top small text-muted">
+                        <span><i class="bi bi-snow2 me-1"></i>{{ $customer->ac_units_count }} unit AC</span>
+                        <span><i class="bi bi-calendar-check me-1"></i>{{ $customer->bookings_count }} booking</span>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="card">
+                <div class="card-body text-center text-muted py-4">Belum ada data customer.</div>
+            </div>
+        @endforelse
+    </div>
+
+    @if ($customers->hasPages())
+        <div class="mt-3 d-flex justify-content-center justify-content-md-start">
+            {{ $customers->links() }}
+        </div>
+    @endif
 @endsection

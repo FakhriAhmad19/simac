@@ -19,8 +19,8 @@
         </ul>
     </x-page-guide>
 
-    <div class="card">
-        <div class="card-header bg-white">
+    <div class="card mb-3">
+        <div class="card-body">
             <form method="GET" class="row g-2 align-items-center">
                 <div class="col-12 col-md">
                     <div class="input-group">
@@ -45,8 +45,12 @@
                 @endif
             </form>
         </div>
+    </div>
+
+    {{-- Desktop: data table --}}
+    <div class="card d-none d-md-block">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-mobile-card">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr><th>#</th><th>Jadwal</th><th>Customer</th><th>Layanan</th>
                         <th>Teknisi</th><th>Status</th><th></th></tr>
@@ -54,13 +58,13 @@
                 <tbody>
                     @forelse ($bookings as $booking)
                         <tr>
-                            <td class="text-muted" data-label="#">#{{ $booking->id }}</td>
-                            <td data-label="Jadwal">{{ $booking->scheduled_at->format('d M Y H:i') }}</td>
-                            <td data-label="Customer">{{ $booking->customer->name }}</td>
-                            <td data-label="Layanan">{{ $booking->service->name }}</td>
-                            <td data-label="Teknisi">{{ $booking->technician?->user->name ?? '—' }}</td>
-                            <td data-label="Status"><x-status-badge :status="$booking->status" /></td>
-                            <td class="text-end cell-actions">
+                            <td class="text-muted">#{{ $booking->id }}</td>
+                            <td>{{ $booking->scheduled_at->format('d M Y H:i') }}</td>
+                            <td>{{ $booking->customer->name }}</td>
+                            <td>{{ $booking->service->name }}</td>
+                            <td>{{ $booking->technician?->user->name ?? '—' }}</td>
+                            <td><x-status-badge :status="$booking->status" /></td>
+                            <td class="text-end">
                                 <a href="{{ route('bookings.show', $booking) }}"
                                    class="btn btn-sm btn-outline-primary">Detail</a>
                             </td>
@@ -71,6 +75,40 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white">{{ $bookings->links() }}</div>
     </div>
+
+    {{-- Mobile: compact cards --}}
+    <div class="d-md-none">
+        @forelse ($bookings as $booking)
+            <div class="card mb-2">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1" style="min-width:0">
+                            <div class="fw-semibold text-truncate">{{ $booking->customer->name }}</div>
+                            <div class="text-muted small text-truncate">#{{ $booking->id }} · {{ $booking->service->name }}</div>
+                        </div>
+                        <x-status-badge :status="$booking->status" />
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top gap-2">
+                        <div class="small text-muted" style="min-width:0">
+                            <div class="text-truncate"><i class="bi bi-calendar-event me-1"></i>{{ $booking->scheduled_at->format('d M Y H:i') }}</div>
+                            <div class="text-truncate"><i class="bi bi-person me-1"></i>{{ $booking->technician?->user->name ?? 'Belum ditugaskan' }}</div>
+                        </div>
+                        <a href="{{ route('bookings.show', $booking) }}"
+                           class="btn btn-sm btn-outline-primary flex-shrink-0">Detail</a>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="card">
+                <div class="card-body text-center text-muted py-4">Belum ada booking.</div>
+            </div>
+        @endforelse
+    </div>
+
+    @if ($bookings->hasPages())
+        <div class="mt-3 d-flex justify-content-center justify-content-md-start">
+            {{ $bookings->links() }}
+        </div>
+    @endif
 @endsection

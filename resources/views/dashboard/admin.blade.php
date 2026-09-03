@@ -102,8 +102,9 @@
             <strong>Jadwal Hari Ini</strong>
             <a href="{{ route('bookings.index') }}" class="small">Lihat semua</a>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-mobile-card">
+        {{-- Desktop: data table --}}
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th>Jam</th><th>Customer</th><th>Layanan</th>
@@ -113,12 +114,12 @@
                 <tbody>
                     @forelse ($todayBookings as $booking)
                         <tr>
-                            <td data-label="Jam">{{ $booking->scheduled_at->format('H:i') }}</td>
-                            <td data-label="Customer">{{ $booking->customer->name }}</td>
-                            <td data-label="Layanan">{{ $booking->service->name }}</td>
-                            <td data-label="Teknisi">{{ $booking->technician?->user->name ?? '—' }}</td>
-                            <td data-label="Status"><x-status-badge :status="$booking->status" /></td>
-                            <td class="text-end cell-actions">
+                            <td>{{ $booking->scheduled_at->format('H:i') }}</td>
+                            <td>{{ $booking->customer->name }}</td>
+                            <td>{{ $booking->service->name }}</td>
+                            <td>{{ $booking->technician?->user->name ?? '—' }}</td>
+                            <td><x-status-badge :status="$booking->status" /></td>
+                            <td class="text-end">
                                 <a href="{{ route('bookings.show', $booking) }}"
                                    class="btn btn-sm btn-outline-primary">Detail</a>
                             </td>
@@ -130,6 +131,31 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile: compact rows --}}
+        <div class="d-md-none">
+            @forelse ($todayBookings as $booking)
+                <div class="p-3 border-top">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1" style="min-width:0">
+                            <div class="fw-semibold text-truncate">{{ $booking->customer->name }}</div>
+                            <div class="text-muted small text-truncate">{{ $booking->service->name }}</div>
+                        </div>
+                        <x-status-badge :status="$booking->status" />
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 gap-2">
+                        <div class="small text-muted" style="min-width:0">
+                            <span class="me-2"><i class="bi bi-clock me-1"></i>{{ $booking->scheduled_at->format('H:i') }}</span>
+                            <span class="text-truncate"><i class="bi bi-person me-1"></i>{{ $booking->technician?->user->name ?? 'Belum ditugaskan' }}</span>
+                        </div>
+                        <a href="{{ route('bookings.show', $booking) }}"
+                           class="btn btn-sm btn-outline-primary flex-shrink-0">Detail</a>
+                    </div>
+                </div>
+            @empty
+                <div class="p-3 text-center text-muted border-top">Tidak ada jadwal untuk hari ini.</div>
+            @endforelse
         </div>
     </div>
 @endsection

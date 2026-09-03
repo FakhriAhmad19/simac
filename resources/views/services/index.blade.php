@@ -21,9 +21,10 @@
         </ul>
     </x-page-guide>
 
-    <div class="card">
+    {{-- Desktop: data table --}}
+    <div class="card d-none d-md-block">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-mobile-card">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr><th>Nama</th><th>Deskripsi</th><th class="text-end">Harga</th>
                         <th class="text-center">Durasi</th><th></th></tr>
@@ -31,11 +32,11 @@
                 <tbody>
                     @forelse ($services as $service)
                         <tr>
-                            <td class="fw-semibold" data-label="Nama">{{ $service->name }}</td>
-                            <td class="text-muted" data-label="Deskripsi">{{ Str::limit($service->description, 60) ?: '—' }}</td>
-                            <td class="text-end" data-label="Harga">Rp {{ number_format($service->price, 0, ',', '.') }}</td>
-                            <td class="text-center" data-label="Durasi">{{ $service->estimated_duration ? $service->estimated_duration.' mnt' : '—' }}</td>
-                            <td class="text-end cell-actions">
+                            <td class="fw-semibold">{{ $service->name }}</td>
+                            <td class="text-muted">{{ Str::limit($service->description, 60) ?: '—' }}</td>
+                            <td class="text-end">Rp {{ number_format($service->price, 0, ',', '.') }}</td>
+                            <td class="text-center">{{ $service->estimated_duration ? $service->estimated_duration.' mnt' : '—' }}</td>
+                            <td class="text-end">
                                 @if (auth()->user()->isAdmin())
                                     <a href="{{ route('services.edit', $service) }}"
                                        class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
@@ -53,6 +54,50 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white">{{ $services->links() }}</div>
     </div>
+
+    {{-- Mobile: compact cards --}}
+    <div class="d-md-none">
+        @forelse ($services as $service)
+            <div class="card mb-2">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1" style="min-width:0">
+                            <div class="fw-semibold text-truncate">{{ $service->name }}</div>
+                            @if ($service->description)
+                                <div class="text-muted small mt-1">{{ Str::limit($service->description, 80) }}</div>
+                            @endif
+                        </div>
+                        @if (auth()->user()->isAdmin())
+                            <div class="d-flex gap-1 flex-shrink-0">
+                                <a href="{{ route('services.edit', $service) }}"
+                                   class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                <form method="POST" action="{{ route('services.destroy', $service) }}"
+                                      class="d-inline" onsubmit="return confirm('Hapus layanan ini?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                        <span class="fw-semibold">Rp {{ number_format($service->price, 0, ',', '.') }}</span>
+                        <span class="text-muted small">
+                            <i class="bi bi-clock me-1"></i>{{ $service->estimated_duration ? $service->estimated_duration.' mnt' : '—' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="card">
+                <div class="card-body text-center text-muted py-4">Belum ada layanan.</div>
+            </div>
+        @endforelse
+    </div>
+
+    @if ($services->hasPages())
+        <div class="mt-3 d-flex justify-content-center justify-content-md-start">
+            {{ $services->links() }}
+        </div>
+    @endif
 @endsection

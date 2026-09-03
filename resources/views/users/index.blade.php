@@ -17,8 +17,8 @@
         </ul>
     </x-page-guide>
 
-    <div class="card">
-        <div class="card-header bg-white">
+    <div class="card mb-3">
+        <div class="card-body">
             <form method="GET" class="row g-2 align-items-center">
                 <div class="col-12 col-md">
                     <div class="input-group">
@@ -35,26 +35,30 @@
                 @endif
             </form>
         </div>
+    </div>
+
+    {{-- Desktop: data table --}}
+    <div class="card d-none d-md-block">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 table-mobile-card">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr><th>Nama</th><th>Email</th><th>HP</th><th>Role</th><th>Status Teknisi</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach ($users as $user)
                         <tr>
-                            <td class="fw-semibold" data-label="Nama">{{ $user->name }}</td>
-                            <td data-label="Email">{{ $user->email }}</td>
-                            <td data-label="HP">{{ $user->phone ?: '—' }}</td>
-                            <td data-label="Role"><span class="badge text-bg-secondary">{{ $user->role->label() }}</span></td>
-                            <td data-label="Status Teknisi">
+                            <td class="fw-semibold">{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->phone ?: '—' }}</td>
+                            <td><span class="badge text-bg-secondary">{{ $user->role->label() }}</span></td>
+                            <td>
                                 @if ($user->technician)
                                     <span class="badge text-bg-{{ $user->technician->status->color() }}">
                                         {{ $user->technician->status->label() }}
                                     </span>
                                 @else — @endif
                             </td>
-                            <td class="text-end cell-actions">
+                            <td class="text-end">
                                 <a href="{{ route('users.edit', $user) }}"
                                    class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
                                 @if ($user->role->value !== 'admin')
@@ -70,6 +74,49 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white">{{ $users->links() }}</div>
     </div>
+
+    {{-- Mobile: compact cards --}}
+    <div class="d-md-none">
+        @foreach ($users as $user)
+            <div class="card mb-2">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1" style="min-width:0">
+                            <div class="fw-semibold text-truncate">{{ $user->name }}</div>
+                            <div class="text-muted small text-truncate"><i class="bi bi-envelope me-1"></i>{{ $user->email }}</div>
+                            @if ($user->phone)
+                                <div class="text-muted small text-truncate"><i class="bi bi-telephone me-1"></i>{{ $user->phone }}</div>
+                            @endif
+                        </div>
+                        <div class="d-flex gap-1 flex-shrink-0">
+                            <a href="{{ route('users.edit', $user) }}"
+                               class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                            @if ($user->role->value !== 'admin')
+                                <form method="POST" action="{{ route('users.destroy', $user) }}"
+                                      class="d-inline" onsubmit="return confirm('Hapus user ini?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1 mt-2 pt-2 border-top">
+                        <span class="badge text-bg-secondary">{{ $user->role->label() }}</span>
+                        @if ($user->technician)
+                            <span class="badge text-bg-{{ $user->technician->status->color() }}">
+                                {{ $user->technician->status->label() }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    @if ($users->hasPages())
+        <div class="mt-3 d-flex justify-content-center justify-content-md-start">
+            {{ $users->links() }}
+        </div>
+    @endif
 @endsection
